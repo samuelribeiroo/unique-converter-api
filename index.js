@@ -7,7 +7,7 @@ const handleConvertion = async (csvData, pdfPath) => {
     // 1. pdf file it's been created here
 
     const onCreatePDF = await PDFDocument.create();
-    const pdfProperties = await onCreatePDF.addPage();
+    const pdfProperties = onCreatePDF.addPage();
     const { width, height } = pdfProperties.getSize();
     const newWidth = width * 1.5; // Define a nova largura (150% da original)
     pdfProperties.setSize(newWidth, height);
@@ -48,3 +48,19 @@ const handleConvertion = async (csvData, pdfPath) => {
   }
 };
 
+const getCSVfile = 'industry.csv';
+const csvData = [];
+
+fs.createReadStream(getCSVfile)
+  .pipe(parse())
+  .on("data", row => {
+    const rowArray = Object.values(row);
+    csvData.push(rowArray);
+  })
+  .on("end", () => {
+    // Quando a leitura do CSV terminar, chama a função de conversão
+    handleConvertion(csvData, "file.pdf");
+  })
+  .on("error", err => {
+    console.error(err);
+  });
